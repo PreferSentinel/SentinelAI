@@ -11,9 +11,9 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'src'))); // Serve frontend files
+app.use(express.static(path.join(__dirname))); // 14. satır: 'src' silindi
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html')); // 16. satır: 'src' silindi
 });
 // --- Sentinel Zekası (API Endpoint) ---
 app.post('/api/chat', async (req, res) => {
@@ -49,3 +49,4 @@ app.listen(port, () => {
     console.log(`Sentinel Server online at http://localhost:${port}`);
     console.log('Neural Link Established.');
 });
+
