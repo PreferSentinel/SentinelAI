@@ -16,16 +16,17 @@ let sessions = JSON.parse(localStorage.getItem('sentinel_sessions')) || [];
 let currentSessionId = null;
 let isWait = false;
 
+// Kapatma Butonu
 document.querySelector('.close').addEventListener('click', () => window.close());
 
+// Mod Değiştirme
 tiles.forEach(tile => {
     tile.addEventListener('click', () => {
         tiles.forEach(t => t.classList.remove('active'));
         views.forEach(v => v.classList.remove('active'));
         tile.classList.add('active');
         const mode = tile.getAttribute('data-mode');
-        const targetView = document.getElementById(mode);
-        if(targetView) targetView.classList.add('active');
+        document.getElementById(mode).classList.add('active');
     });
 });
 
@@ -50,7 +51,7 @@ function saveToSession(userText, aiText) {
         currentSessionId = Date.now();
         sessions.unshift({
             id: currentSessionId,
-            title: userText.substring(0, 18) + '...',
+            title: userText.substring(0, 15) + "...",
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             messages: []
         });
@@ -85,39 +86,65 @@ function loadSession(id) {
     renderSidebar();
 }
 
+// HATAYI DÜZELTEN ASIL FONKSİYON
 async function handleSend() {
     const text = userInput.value.trim();
     if (!text || isWait) return;
     isWait = true;
+
     addMessage(text, true);
     userInput.value = '';
-    const targetBubble = addMessage("...", false);
+
+    const targetBubble = addMessage("", false);
+    targetBubble.innerHTML = '<span class="cursor">|</span>';
+    let fullAiResponse = "";
+
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text })
         });
-        const data = await response.json(); // Basit API varsayımı
-        targetBubble.innerHTML = data.reply;
-        saveToSession(text, data.reply);
-    } catch (e) {
-        targetBubble.innerHTML = "[ERROR]";
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            fullAiResponse += chunk;
+            targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>') + '<span class="cursor">|</span>';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>');
+        saveToSession(text, fullAiResponse);
+    } catch (error) {
+        targetBubble.innerHTML = `<span style="color:#ff4b4b; font-weight:bold;">[NEURAL LINK SEVERED]</span><br><small>${error.message}</small>`;
+    } finally {
+        isWait = false;
     }
-    isWait = false;
 }
 
 newChatBtn.onclick = startNewChat;
 sendBtn.onclick = handleSend;
 userInput.onkeypress = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+
 authTrigger.onclick = () => authModal.style.display = 'flex';
 loginConfirm.onclick = () => {
     const name = document.getElementById('username-input').value;
-    if (name) { localStorage.setItem('sentinel_user', name); userDisplay.innerText = name.toUpperCase(); authModal.style.display = 'none'; }
+    if (name) {
+        localStorage.setItem('sentinel_user', name);
+        userDisplay.innerText = name.toUpperCase();
+        authModal.style.display = 'none';
+    }
 };
+
 if (uploadBtn) uploadBtn.onclick = () => imageInput.click();
 
 const savedUser = localStorage.getItem('sentinel_user');
 if (savedUser) userDisplay.innerText = savedUser.toUpperCase();
+
 renderSidebar();
 startNewChat();
