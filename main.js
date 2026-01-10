@@ -3,7 +3,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // --- Gemini Yapılandırması ---
-const API_KEY = 'AIzaSyDOftkt6lTdquxQMuEgPwtPsIvzeIMR710';
+const API_KEY = 'AIzaSyCVQvbjgSx6yy8sOxxwx6QrJpxjQp_bGBE';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 function createWindow() {
@@ -55,4 +55,5 @@ ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
         // Hata olursa ekranda kırmızı uyarı yerine bu dostane uyarı çıkacak
         event.sender.send('sentinel:chat-error', "Bağlantıda bir sorun var kanka, tekrar dener misin? Hata: " + error.message);
     }
+
 });
