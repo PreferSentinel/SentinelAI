@@ -3,7 +3,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // --- Gemini Yapılandırması ---
-const API_KEY = 'AIzaSyCVQvbjgSx6yy8sOxxwx6QrJpxjQp_bGBE';
+const API_KEY = 'AIzaSyAfxaEYal22crKouKtom6LVPSk4oLzAeXQ';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 function createWindow() {
@@ -57,6 +57,7 @@ ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     }
 
 });
+
 
 
 
