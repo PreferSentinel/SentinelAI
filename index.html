@@ -34,6 +34,16 @@
         </header>
 
         <div class="main-layout">
+            <!-- Sidebar: Contextual Memory -->
+<aside class="sidebar memory-bank">
+                <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin: 0; font-family: 'Orbitron'; color: #00f2ff; font-size: 12px;">KNOWLEDGE FRAGMENTS</h3>
+                    <button id="new-chat-btn" style="background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; border-radius: 5px; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.3s;">+</button>
+                </div>
+
+                <div class="memory-list" id="memory-list">
+                    </div>
+            </aside>
 <aside class="sidebar memory-bank">
             <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <h3 style="margin: 0; font-family: 'Orbitron'; color: #00f2ff; font-size: 12px;">KNOWLEDGE FRAGMENTS</h3>
@@ -41,8 +51,6 @@
             </div>
 
             <div class="memory-list" id="memory-list">
-                </div>
-        </aside>
             </div>
         </aside>
             
@@ -117,8 +125,3 @@ function initSystem() {
     <script src="renderer.js"></script>
 </body>
 </html>
-
-
-
-
-
