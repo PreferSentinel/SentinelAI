@@ -100,6 +100,12 @@ function initSystem() {
                 <footer class="input-zone">
                     <div class="input-wrapper">
                         <textarea id="user-input" placeholder="Enter command protocol..." rows="1"></textarea>
+                        <input type="file" id="image-input" accept="image/*" style="display:none;">
+
+<button id="upload-btn" class="neural-link-btn" style="margin-right: 10px; width: auto; padding: 0 15px;">
+    <span class="btn-text">📷</span>
+    <span class="btn-text-glow"></span>
+</button>
                         <button id="send-btn" class="neural-link-btn">
                             <span class="btn-text">LINK</span>
                             <span class="btn-glow"></span>
@@ -112,3 +118,4 @@ function initSystem() {
     <script src="renderer.js"></script>
 </body>
 </html>
+
