@@ -1,22 +1,23 @@
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
+const newChatBtn = document.getElementById('new-chat-btn');
+const memoryList = document.getElementById('memory-list');
 const tiles = document.querySelectorAll('.tile');
 const views = document.querySelectorAll('.mode-view');
 const authTrigger = document.getElementById('auth-trigger');
 const authModal = document.getElementById('auth-modal');
 const loginConfirm = document.getElementById('login-confirm');
 const userDisplay = document.getElementById('user-display');
-const memoryList = document.getElementById('memory-list');
 const imageInput = document.getElementById('image-input');
 const uploadBtn = document.getElementById('upload-btn');
 
-let currentMode = 'neural-stream';
+let sessions = JSON.parse(localStorage.getItem('sentinel_sessions')) || [];
+let currentSessionId = null;
 let isWait = false;
+let currentMode = 'neural-stream';
 
-document.querySelector('.close').addEventListener('click', () => {
-    window.close();
-});
+document.querySelector('.close').addEventListener('click', () => window.close());
 
 tiles.forEach(tile => {
     tile.addEventListener('click', () => {
@@ -30,22 +31,77 @@ tiles.forEach(tile => {
 
 function addMessage(text, isUser = false) {
     const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message');
-    msgDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+    msgDiv.classList.add('message', isUser ? 'user-message' : 'ai-message');
     const avatar = document.createElement('div');
     avatar.classList.add('avatar');
     avatar.textContent = isUser ? 'US' : 'SI';
     const bubble = document.createElement('div');
     bubble.classList.add('bubble');
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
     msgDiv.appendChild(avatar);
     msgDiv.appendChild(bubble);
     chatContainer.appendChild(msgDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    if (isUser) {
-        bubble.textContent = text;
-    } else {
-        return bubble;
+    if (!isUser) return bubble;
+}
+
+function startNewChat() {
+    currentSessionId = null;
+    chatContainer.innerHTML = '';
+    addMessage("System initialized. Sentinel API online. Awaiting commands.", false);
+    renderSidebar();
+}
+
+function saveToSession(userText, aiText) {
+    if (!currentSessionId) {
+        currentSessionId = Date.now();
+        const newSession = {
+            id: currentSessionId,
+            title: userText.substring(0, 18) + '...',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            messages: []
+        };
+        sessions.unshift(newSession);
     }
+    const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
+    if (sessionIndex > -1) {
+        if (userText) sessions[sessionIndex].messages.push({ role: 'user', content: userText });
+        if (aiText) sessions[sessionIndex].messages.push({ role: 'ai', content: aiText });
+        const updatedSession = sessions.splice(sessionIndex, 1)[0];
+        updatedSession.time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        sessions.unshift(updatedSession);
+        localStorage.setItem('sentinel_sessions', JSON.stringify(sessions));
+        renderSidebar();
+    }
+}
+
+function renderSidebar() {
+    if (!memoryList) return;
+    memoryList.innerHTML = '';
+    sessions.forEach(session => {
+        const div = document.createElement('div');
+        div.className = `memory-item ${session.id === currentSessionId ? 'active' : ''}`;
+        if(session.id === currentSessionId) div.style.border = '1px solid #00f2ff';
+        div.innerHTML = `
+            <span class="mem-icon">⌬</span>
+            <div class="mem-content">
+                <span class="mem-title">${session.title}</span>
+                <span class="mem-date">${session.time}</span>
+            </div>`;
+        div.onclick = () => loadSession(session.id);
+        memoryList.appendChild(div);
+    });
+}
+
+function loadSession(id) {
+    const session = sessions.find(s => s.id === id);
+    if (!session) return;
+    currentSessionId = id;
+    chatContainer.innerHTML = '';
+    session.messages.forEach(msg => {
+        addMessage(msg.content, msg.role === 'user');
+    });
+    renderSidebar();
 }
 
 async function handleSend() {
@@ -53,10 +109,10 @@ async function handleSend() {
     if (!text || isWait) return;
     isWait = true;
     addMessage(text, true);
-    updateHistory(text);
     userInput.value = '';
     const targetBubble = addMessage("", false);
     targetBubble.innerHTML = '<span class="cursor">|</span>';
+    let fullAiResponse = "";
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -65,31 +121,35 @@ async function handleSend() {
         });
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let fullText = "";
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = decoder.decode(value, { stream: true });
-            fullText += chunk;
-            targetBubble.innerHTML = fullText.replace(/\n/g, '<br>') + '<span class="cursor">|</span>';
+            fullAiResponse += chunk;
+            targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>') + '<span class="cursor">|</span>';
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
         isWait = false;
-        targetBubble.innerHTML = fullText.replace(/\n/g, '<br>');
+        targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>');
+        saveToSession(text, fullAiResponse);
     } catch (error) {
         isWait = false;
-        targetBubble.innerHTML = `<span> [NEURAL LINK SEVERED]</span> <br> ${error}`;
+        targetBubble.innerHTML = `<span style="color:red">[NEURAL LINK SEVERED]</span><br>${error}`;
+        saveToSession(text, "[Error]");
     }
 }
 
-if (uploadBtn) {
-    uploadBtn.onclick = () => imageInput.click();
-}
-
-authTrigger.onclick = () => {
-    authModal.style.display = 'flex';
+if (newChatBtn) newChatBtn.onclick = startNewChat;
+sendBtn.onclick = handleSend;
+userInput.onkeypress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+    }
 };
 
+if (uploadBtn) uploadBtn.onclick = () => imageInput.click();
+authTrigger.onclick = () => authModal.style.display = 'flex';
 loginConfirm.onclick = () => {
     const name = document.getElementById('username-input').value;
     if (name) {
@@ -102,40 +162,5 @@ loginConfirm.onclick = () => {
 const savedUser = localStorage.getItem('sentinel_user');
 if (savedUser) userDisplay.innerText = savedUser.toUpperCase();
 
-function updateHistory(text) {
-    let history = JSON.parse(localStorage.getItem('sentinel_history')) || [];
-    history.unshift({
-        title: text.substring(0, 15) + "...",
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
-    localStorage.setItem('sentinel_history', JSON.stringify(history.slice(0, 10)));
-    renderSidebar();
-}
-
-function renderSidebar() {
-    const history = JSON.parse(localStorage.getItem('sentinel_history')) || [];
-    if (!memoryList) return;
-    memoryList.innerHTML = '';
-    history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'memory-item';
-        div.innerHTML = `
-            <span class="mem-icon">⌬</span>
-            <div class="mem-content">
-                <span class="mem-title">${item.title}</span>
-                <span class="mem-date">${item.time}</span>
-            </div>`;
-        memoryList.appendChild(div);
-    });
-}
-
-sendBtn.addEventListener('click', handleSend);
-userInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-    }
-});
-
 renderSidebar();
-userInput.focus();
+startNewChat();
