@@ -21,7 +21,7 @@ app.post('/api/chat', async (req, res) => {
 
         
       const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash-latest",  
+    model: "gemini-1.5-flash",  
     systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
 });
 
@@ -48,6 +48,7 @@ app.listen(port, () => {
     console.log(`Sentinel Server online at http://localhost:${port}`);
     console.log('Neural Link Established.');
 });
+
 
 
 
