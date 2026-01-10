@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-Intelligence</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Draggable Glass Header -->
+        <header class="glass-header">
+            <div class="logo-area">
+                <span class="sentinel-icon">◈</span>
+                <span class="app-title">SENTINEL INTELLIGENCE</span>
+            </div>
+            <div class="window-controls">
+                <button class="control-btn minimize">─</button>
+                <button class="control-btn maximize">□</button>
+                <button class="control-btn close">✕</button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Sidebar: Contextual Memory -->
+            <aside class="sidebar memory-bank">
+                <div class="sidebar-header">
+                    <h3>KNOWLEDGE FRAGMENTS</h3>
+                </div>
+                <div class="memory-list" id="memory-list">
+                    <!-- Dynamic memory items will be injected here -->
+                    <div class="memory-item" style="animation-delay: 0.1s">
+                        <span class="mem-icon">⌬</span>
+                        <div class="mem-content">
+                            <span class="mem-title">Project: Chimera</span>
+                            <span class="mem-date">Last accessed: 2h ago</span>
+                        </div>
+                    </div>
+                    <div class="memory-item" style="animation-delay: 0.2s">
+                        <span class="mem-icon">⌘</span>
+                        <div class="mem-content">
+                            <span class="mem-title">Auth Protocol v2</span>
+                            <span class="mem-date">Encrypted</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Command Center -->
+            <main class="command-center">
+                <!-- Dashboard / Mode Switcher -->
+                <div class="dashboard-tiles">
+                    <div class="tile active" data-mode="neural-stream">
+                        <span class="tile-icon">⚡</span>
+                        <span class="tile-label">Neural Stream</span>
+                    </div>
+                    <div class="tile" data-mode="code-guard">
+                        <span class="tile-icon">🛡️</span>
+                        <span class="tile-label">Code Guard</span>
+                    </div>
+                    <div class="tile" data-mode="shadow-writer">
+                        <span class="tile-icon">✎</span>
+                        <span class="tile-label">Shadow Writer</span>
+                    </div>
+                </div>
+
+                <!-- Content Area -->
+                <div id="content-area">
+                    <!-- Neural Stream (Chat) -->
+                    <div id="neural-stream" class="mode-view active">
+                        <div class="chat-container" id="chat-container">
+                            <div class="message ai-message">
+                                <div class="avatar">SI</div>
+                                <div class="bubble">
+                                    <p class="typing-text">System initialized. Sentinel API online. Awaiting commands.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Sandbox (Hidden by default) -->
+                    <div id="code-sandbox" class="mode-view">
+                        <div class="editor-header">
+                            <span>main.js</span>
+                            <span class="lang-tag">JAVASCRIPT</span>
+                        </div>
+                        <div class="editor-body">
+                            <textarea id="monaco-mock" spellcheck="false">
+function initSystem() {
+    console.log("Sentinel Core Active");
+    return true;
+}
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Zone -->
+                <footer class="input-zone">
+                    <div class="input-wrapper">
+                        <textarea id="user-input" placeholder="Enter command protocol..." rows="1"></textarea>
+                        <button id="send-btn" class="neural-link-btn">
+                            <span class="btn-text">LINK</span>
+                            <span class="btn-glow"></span>
+                        </button>
+                    </div>
+                </footer>
+            </main>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>

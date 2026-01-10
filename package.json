@@ -1,0 +1,19 @@
+{
+  "name": "sentinel-intelligence",
+  "version": "1.0.0",
+  "description": "AI Command Center",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^34.5.8"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "express": "^5.2.1"
+  }
+}
