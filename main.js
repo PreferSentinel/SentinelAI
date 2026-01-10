@@ -37,10 +37,10 @@ app.on('window-all-closed', () => {
 // --- Sentinel Zekası (IPC Handler) ---
 ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     try {
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
-        });
+      const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest",  // ← "-latest" eklendi
+    systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
+});
 
         const result = await model.generateContentStream(userMessage);
 
@@ -57,4 +57,5 @@ ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     }
 
 });
+
 
