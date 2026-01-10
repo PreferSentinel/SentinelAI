@@ -5,26 +5,25 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 const port = 3000;
 
-// --- Gemini Configuration ---
 const API_KEY = 'AIzaSyCVQvbjgSx6yy8sOxxwx6QrJpxjQp_bGBE';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname))); // 14. satır: 'src' silindi
+app.use(express.static(path.join(__dirname))); 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html')); // 16. satır: 'src' silindi
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 // --- Sentinel Zekası (API Endpoint) ---
 app.post('/api/chat', async (req, res) => {
     try {
         const userMessage = req.body.message;
 
-        // Model yapılandırması - Muq Persona
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
-        });
+        
+      const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest",  
+    systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
+});
 
         const result = await model.generateContentStream(userMessage);
 
@@ -49,6 +48,7 @@ app.listen(port, () => {
     console.log(`Sentinel Server online at http://localhost:${port}`);
     console.log('Neural Link Established.');
 });
+
 
 
 
