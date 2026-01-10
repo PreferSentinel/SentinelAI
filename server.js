@@ -12,7 +12,9 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src'))); // Serve frontend files
-
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'index.html'));
+});
 // --- Sentinel Zekası (API Endpoint) ---
 app.post('/api/chat', async (req, res) => {
     try {
