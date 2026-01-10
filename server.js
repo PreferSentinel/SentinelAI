@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 // --- Gemini Configuration ---
-const API_KEY = process.env.API_KEY;
+const API_KEY = 'AIzaSyDOftkt6lTdquxQMuEgPwtPsIvzeIMR710';
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Middleware
@@ -49,5 +49,6 @@ app.listen(port, () => {
     console.log(`Sentinel Server online at http://localhost:${port}`);
     console.log('Neural Link Established.');
 });
+
 
 
