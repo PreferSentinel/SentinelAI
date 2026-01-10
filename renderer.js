@@ -15,7 +15,6 @@ const uploadBtn = document.getElementById('upload-btn');
 let sessions = JSON.parse(localStorage.getItem('sentinel_sessions')) || [];
 let currentSessionId = null;
 let isWait = false;
-let currentMode = 'neural-stream';
 
 document.querySelector('.close').addEventListener('click', () => window.close());
 
@@ -24,25 +23,19 @@ tiles.forEach(tile => {
         tiles.forEach(t => t.classList.remove('active'));
         views.forEach(v => v.classList.remove('active'));
         tile.classList.add('active');
-        currentMode = tile.getAttribute('data-mode');
-        document.getElementById(currentMode).classList.add('active');
+        const mode = tile.getAttribute('data-mode');
+        const targetView = document.getElementById(mode);
+        if(targetView) targetView.classList.add('active');
     });
 });
 
 function addMessage(text, isUser = false) {
     const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message', isUser ? 'user-message' : 'ai-message');
-    const avatar = document.createElement('div');
-    avatar.classList.add('avatar');
-    avatar.textContent = isUser ? 'US' : 'SI';
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-    msgDiv.appendChild(avatar);
-    msgDiv.appendChild(bubble);
+    msgDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+    msgDiv.innerHTML = `<div class="avatar">${isUser ? 'US' : 'SI'}</div><div class="bubble">${text.replace(/\n/g, '<br>')}</div>`;
     chatContainer.appendChild(msgDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    if (!isUser) return bubble;
+    return msgDiv.querySelector('.bubble');
 }
 
 function startNewChat() {
@@ -55,21 +48,16 @@ function startNewChat() {
 function saveToSession(userText, aiText) {
     if (!currentSessionId) {
         currentSessionId = Date.now();
-        const newSession = {
+        sessions.unshift({
             id: currentSessionId,
             title: userText.substring(0, 18) + '...',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             messages: []
-        };
-        sessions.unshift(newSession);
+        });
     }
-    const sessionIndex = sessions.findIndex(s => s.id === currentSessionId);
-    if (sessionIndex > -1) {
-        if (userText) sessions[sessionIndex].messages.push({ role: 'user', content: userText });
-        if (aiText) sessions[sessionIndex].messages.push({ role: 'ai', content: aiText });
-        const updatedSession = sessions.splice(sessionIndex, 1)[0];
-        updatedSession.time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        sessions.unshift(updatedSession);
+    const session = sessions.find(s => s.id === currentSessionId);
+    if (session) {
+        session.messages.push({ role: 'user', content: userText }, { role: 'ai', content: aiText });
         localStorage.setItem('sentinel_sessions', JSON.stringify(sessions));
         renderSidebar();
     }
@@ -78,17 +66,12 @@ function saveToSession(userText, aiText) {
 function renderSidebar() {
     if (!memoryList) return;
     memoryList.innerHTML = '';
-    sessions.forEach(session => {
+    sessions.forEach(s => {
         const div = document.createElement('div');
-        div.className = `memory-item ${session.id === currentSessionId ? 'active' : ''}`;
-        if(session.id === currentSessionId) div.style.border = '1px solid #00f2ff';
-        div.innerHTML = `
-            <span class="mem-icon">⌬</span>
-            <div class="mem-content">
-                <span class="mem-title">${session.title}</span>
-                <span class="mem-date">${session.time}</span>
-            </div>`;
-        div.onclick = () => loadSession(session.id);
+        div.className = `memory-item ${s.id === currentSessionId ? 'active' : ''}`;
+        div.style.border = s.id === currentSessionId ? '1px solid #00f2ff' : 'none';
+        div.innerHTML = `<span class="mem-icon">⌬</span><div class="mem-content"><span class="mem-title">${s.title}</span><span class="mem-date">${s.time}</span></div>`;
+        div.onclick = () => loadSession(s.id);
         memoryList.appendChild(div);
     });
 }
@@ -98,9 +81,7 @@ function loadSession(id) {
     if (!session) return;
     currentSessionId = id;
     chatContainer.innerHTML = '';
-    session.messages.forEach(msg => {
-        addMessage(msg.content, msg.role === 'user');
-    });
+    session.messages.forEach(m => addMessage(m.content, m.role === 'user'));
     renderSidebar();
 }
 
@@ -110,57 +91,33 @@ async function handleSend() {
     isWait = true;
     addMessage(text, true);
     userInput.value = '';
-    const targetBubble = addMessage("", false);
-    targetBubble.innerHTML = '<span class="cursor">|</span>';
-    let fullAiResponse = "";
+    const targetBubble = addMessage("...", false);
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text })
         });
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            fullAiResponse += chunk;
-            targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>') + '<span class="cursor">|</span>';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        isWait = false;
-        targetBubble.innerHTML = fullAiResponse.replace(/\n/g, '<br>');
-        saveToSession(text, fullAiResponse);
-    } catch (error) {
-        isWait = false;
-        targetBubble.innerHTML = `<span style="color:red">[NEURAL LINK SEVERED]</span><br>${error}`;
-        saveToSession(text, "[Error]");
+        const data = await response.json(); // Basit API varsayımı
+        targetBubble.innerHTML = data.reply;
+        saveToSession(text, data.reply);
+    } catch (e) {
+        targetBubble.innerHTML = "[ERROR]";
     }
+    isWait = false;
 }
 
-if (newChatBtn) newChatBtn.onclick = startNewChat;
+newChatBtn.onclick = startNewChat;
 sendBtn.onclick = handleSend;
-userInput.onkeypress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-    }
-};
-
-if (uploadBtn) uploadBtn.onclick = () => imageInput.click();
+userInput.onkeypress = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
 authTrigger.onclick = () => authModal.style.display = 'flex';
 loginConfirm.onclick = () => {
     const name = document.getElementById('username-input').value;
-    if (name) {
-        localStorage.setItem('sentinel_user', name);
-        userDisplay.innerText = name.toUpperCase();
-        authModal.style.display = 'none';
-    }
+    if (name) { localStorage.setItem('sentinel_user', name); userDisplay.innerText = name.toUpperCase(); authModal.style.display = 'none'; }
 };
+if (uploadBtn) uploadBtn.onclick = () => imageInput.click();
 
 const savedUser = localStorage.getItem('sentinel_user');
 if (savedUser) userDisplay.innerText = savedUser.toUpperCase();
-
 renderSidebar();
 startNewChat();
