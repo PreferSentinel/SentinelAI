@@ -9,14 +9,14 @@
 </head>
 <body>
     <div id="auth-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div style="background: #121212; padding: 30px; border: 1px solid #00f2ff; border-radius: 10px; text-align: center; min-width: 300px;">
-        <h3 style="font-family: 'Orbitron'; color: #00f2ff; margin-top: 0;">IDENTITY INITIALIZATION</h3>
-        <input type="text" id="username-input" placeholder="Enter UID..." style="display: block; width: 100%; margin: 20px 0; padding: 12px; background: #0a0a0a; border: 1px solid #333; color: white; box-sizing: border-box;">
-        <button id="login-confirm" style="background: #00f2ff; border: none; padding: 10px 20px; font-family: 'Orbitron'; cursor: pointer; width: 100%; font-weight: bold;">ACCESS SYSTEM</button>
+        <div style="background: #121212; padding: 30px; border: 1px solid #00f2ff; border-radius: 10px; text-align: center; min-width: 300px;">
+            <h3 style="font-family: 'Orbitron'; color: #00f2ff; margin-top: 0;">IDENTITY INITIALIZATION</h3>
+            <input type="text" id="username-input" placeholder="Enter UID..." style="display: block; width: 100%; margin: 20px 0; padding: 12px; background: #0a0a0a; border: 1px solid #333; color: white; box-sizing: border-box;">
+            <button id="login-confirm" style="background: #00f2ff; border: none; padding: 10px 20px; font-family: 'Orbitron'; cursor: pointer; width: 100%; font-weight: bold;">ACCESS SYSTEM</button>
+        </div>
     </div>
-</div>
+
     <div class="app-container">
-        <!-- Draggable Glass Header -->
         <header class="glass-header">
             <div class="logo-area">
                 <span class="sentinel-icon">◈</span>
@@ -24,9 +24,9 @@
             </div>
             <div class="window-controls">
                 <div class="account-section" style="display: flex; align-items: center; gap: 10px; margin-right: 15px; -webkit-app-region: no-drag;">
-    <span id="user-display" style="font-family: 'Orbitron'; font-size: 11px; color: #00f2ff;">GUEST_AUTH</span>
-    <button id="auth-trigger" style="background: rgba(255,255,255,0.1); border: 1px solid #333; color: white; cursor: pointer; border-radius: 4px; padding: 2px 8px;">👤 IDENTITY</button>
-</div>
+                    <span id="user-display" style="font-family: 'Orbitron'; font-size: 11px; color: #00f2ff;">GUEST_AUTH</span>
+                    <button id="auth-trigger" style="background: rgba(255,255,255,0.1); border: 1px solid #333; color: white; cursor: pointer; border-radius: 4px; padding: 2px 8px;">👤 IDENTITY</button>
+                </div>
                 <button class="control-btn minimize">─</button>
                 <button class="control-btn maximize">□</button>
                 <button class="control-btn close">✕</button>
@@ -34,29 +34,15 @@
         </header>
 
         <div class="main-layout">
-            <!-- Sidebar: Contextual Memory -->
-<aside class="sidebar memory-bank">
+            <aside class="sidebar memory-bank">
                 <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="margin: 0; font-family: 'Orbitron'; color: #00f2ff; font-size: 12px;">KNOWLEDGE FRAGMENTS</h3>
                     <button id="new-chat-btn" style="background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; border-radius: 5px; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.3s;">+</button>
                 </div>
-
-                <div class="memory-list" id="memory-list">
-                    </div>
+                <div class="memory-list" id="memory-list"></div>
             </aside>
-<aside class="sidebar memory-bank">
-            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <h3 style="margin: 0; font-family: 'Orbitron'; color: #00f2ff; font-size: 12px;">KNOWLEDGE FRAGMENTS</h3>
-                <button id="new-chat-btn" style="background: rgba(0, 242, 255, 0.1); border: 1px solid #00f2ff; color: #00f2ff; border-radius: 5px; cursor: pointer; padding: 5px 10px; font-weight: bold; transition: 0.3s;">+</button>
-            </div>
 
-            <div class="memory-list" id="memory-list">
-            </div>
-        </aside>
-            
-            <!-- Main Command Center -->
             <main class="command-center">
-                <!-- Dashboard / Mode Switcher -->
                 <div class="dashboard-tiles">
                     <div class="tile active" data-mode="neural-stream">
                         <span class="tile-icon">⚡</span>
@@ -72,47 +58,29 @@
                     </div>
                 </div>
 
-                <!-- Content Area -->
                 <div id="content-area">
-                    <!-- Neural Stream (Chat) -->
                     <div id="neural-stream" class="mode-view active">
-                        <div class="chat-container" id="chat-container">
-                            <div class="message ai-message">
-                                <div class="avatar">SI</div>
-                                <div class="bubble">
-                                    <p class="typing-text">System initialized. Sentinel API online. Awaiting commands.</p>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="chat-container" id="chat-container"></div>
                     </div>
 
-                    <!-- Code Sandbox (Hidden by default) -->
                     <div id="code-sandbox" class="mode-view">
                         <div class="editor-header">
                             <span>main.js</span>
                             <span class="lang-tag">JAVASCRIPT</span>
                         </div>
                         <div class="editor-body">
-                            <textarea id="monaco-mock" spellcheck="false">
-function initSystem() {
-    console.log("Sentinel Core Active");
-    return true;
-}
-                            </textarea>
+                            <textarea id="monaco-mock" spellcheck="false">function initSystem() { console.log("Sentinel Core Active"); return true; }</textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- Input Zone -->
                 <footer class="input-zone">
                     <div class="input-wrapper">
                         <textarea id="user-input" placeholder="Enter command protocol..." rows="1"></textarea>
                         <input type="file" id="image-input" accept="image/*" style="display:none;">
-
-<button id="upload-btn" class="neural-link-btn" style="margin-right: 10px; width: auto; padding: 0 15px;">
-    <span class="btn-text">📷</span>
-    <span class="btn-text-glow"></span>
-</button>
+                        <button id="upload-btn" class="neural-link-btn" style="margin-right: 10px; width: auto; padding: 0 15px;">
+                            <span class="btn-text">📷</span>
+                        </button>
                         <button id="send-btn" class="neural-link-btn">
                             <span class="btn-text">LINK</span>
                             <span class="btn-glow"></span>
