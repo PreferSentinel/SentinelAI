@@ -36,7 +36,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-002",  // ✅ Güncel model
+            model: "gemini-2.0-flash",  // ✅ Gemini 2.0 Flash - Çalışıyor!
             systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
         });
         
