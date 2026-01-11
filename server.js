@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -5,7 +6,14 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 const port = 3000;
 
-const API_KEY = 'AIzaSyAfxaEYal22crKouKtom6LVPSk4oLzAeXQ';
+// ✅ Güvenli API Key Yönetimi
+const API_KEY = process.env.GEMINI_API_KEY;
+
+if (!API_KEY) {
+    console.error('❌ HATA: .env dosyasında GEMINI_API_KEY bulunamadı!');
+    process.exit(1);
+}
+
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Middleware
@@ -22,13 +30,12 @@ app.post('/api/chat', async (req, res) => {
         const userMessage = req.body.message;
         
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",  // ✅ Gemini 2.0 Flash - Çalışıyor!
+            model: "gemini-1.5-pro",
             systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
         });
         
         const result = await model.generateContentStream(userMessage);
         
-        // Set headers for streaming
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Transfer-Encoding', 'chunked');
         
@@ -45,6 +52,6 @@ app.post('/api/chat', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Sentinel Server online at http://localhost:${port}`);
-    console.log('Neural Link Established.');
+    console.log(`✅ Sentinel Server online at http://localhost:${port}`);
+    console.log('🔗 Neural Link Established.');
 });
