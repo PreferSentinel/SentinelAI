@@ -1,9 +1,16 @@
+require('dotenv').config();
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// --- Gemini Yapılandırması ---
-const API_KEY = 'AIzaSyAfxaEYal22crKouKtom6LVPSk4oLzAeXQ';
+// ✅ Güvenli API Key Yönetimi
+const API_KEY = process.env.GEMINI_API_KEY;
+
+if (!API_KEY) {
+    console.error('❌ HATA: .env dosyasında GEMINI_API_KEY bulunamadı!');
+    process.exit(1);
+}
+
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 function createWindow() {
@@ -36,7 +43,7 @@ app.on('window-all-closed', () => {
 ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     try {
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",  // ✅ Gemini 2.0 Flash - Çalışıyor!
+            model: "gemini-1.5-pro",
             systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
         });
         
