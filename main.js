@@ -18,13 +18,11 @@ function createWindow() {
             nodeIntegration: false
         }
     });
-
     win.loadFile('src/index.html');
 }
 
 app.whenReady().then(() => {
     createWindow();
-
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
@@ -37,28 +35,21 @@ app.on('window-all-closed', () => {
 // --- Sentinel Zekası (IPC Handler) ---
 ipcMain.on('sentinel:start-chat', async (event, userMessage) => {
     try {
-      const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash-latest",  // ← "-latest" eklendi
-    systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
-});
-
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash-latest",
+            systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
+        });
+        
         const result = await model.generateContentStream(userMessage);
-
+        
         for await (const chunk of result.stream) {
             const chunkText = chunk.text();
             event.sender.send('sentinel:chat-chunk', chunkText);
         }
-
+        
         event.sender.send('sentinel:chat-end');
     } catch (error) {
         console.error("Gemini Hatası:", error);
-        // Hata olursa ekranda kırmızı uyarı yerine bu dostane uyarı çıkacak
         event.sender.send('sentinel:chat-error', "Bağlantıda bir sorun var kanka, tekrar dener misin? Hata: " + error.message);
     }
-
 });
-
-
-
-
-
