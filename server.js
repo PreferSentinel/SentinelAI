@@ -22,7 +22,7 @@ app.post('/api/chat', async (req, res) => {
         const userMessage = req.body.message;
         
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-latest",
+            model: "gemini-1.5-flash-002",  // ✅ Güncel model
             systemInstruction: "Sen Sentinel'sin. Kullanıcıya her konuda yardımcı olan, çok samimi, kanka gibi konuşan ve zeki bir asistansın. Teknik terimler yerine günlük bir dil kullan, şakacı ve dost canlısı davran."
         });
         
